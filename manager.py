@@ -7,7 +7,6 @@ import unittest
 
 app = create_app()
 manager = Manager(app)
-
 @manager.command
 def test():
     """Runs the tests without code coverage."""
@@ -24,6 +23,22 @@ def recreate_db():
     db.drop_all()
     db.create_all()
     db.session.commit()
+
+def add_user(username, email):
+    user = User(username=username, email=email)
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+@manager.command
+def seed_db():
+    """Seeds the database."""
+    db.create_all()
+    db.session.commit()
+    add_user('michael', 'michael@realpython.com')
+    add_user('michaelherman', 'michael@mherman.org')
+    db.session.commit()
+
 
 if __name__ == '__main__':
 	manager.run()

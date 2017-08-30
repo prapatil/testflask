@@ -1,11 +1,22 @@
 #project/api/views.py
 
-from flask import request,Blueprint,jsonify
+from flask import request,Blueprint,jsonify,render_template
 from project.api.models import User
 from project import db
 from sqlalchemy import exc
 
-users_blueprint = Blueprint('users',__name__)
+users_blueprint = Blueprint('users', __name__, template_folder='./templates')
+
+
+@users_blueprint.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        db.session.add(User(username=username, email=email))
+        db.session.commit()
+    users = User.query.order_by(User.created_at.desc()).all()
+    return render_template('index.html', users=users)
 
 @users_blueprint.route('/ping',methods=['GET'])
 def ping_pong():
@@ -74,7 +85,7 @@ def get_single_user(user_id):
     except ValueError:
         return jsonify(response_object), 404
 
-    
+
 @users_blueprint.route('/users', methods=['GET'])
 def get_all_users():
     """Get all users"""

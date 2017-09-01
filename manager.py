@@ -4,9 +4,37 @@ from flask_script import Manager
 from project import create_app, db
 from project.api.models import User
 import unittest
+import coverage
+
+COV = coverage.coverage(
+    branch=True,
+    include='project/*',
+    omit=[
+        'project/tests/*'
+    ]
+)
+COV.start()
+
 
 app = create_app()
 manager = Manager(app)
+
+@manager.command
+def cov():
+    """Runs the unit tests with coverage."""
+    tests = unittest.TestLoader().discover('project/tests')
+    result = unittest.TextTestRunner(verbosity=2).run(tests)
+    if result.wasSuccessful():
+        COV.stop()
+        COV.save()
+        print('Coverage Summary:')
+        COV.report()
+        COV.html_report()
+        COV.erase()
+        return 0
+    return 1
+
+
 @manager.command
 def test():
     """Runs the tests without code coverage."""
@@ -35,8 +63,8 @@ def seed_db():
     """Seeds the database."""
     db.create_all()
     db.session.commit()
-    add_user('michael', 'michael@realpython.com')
-    add_user('michaelherman', 'michael@mherman.org')
+    add_user('michael1', 'michael@realpython.com')
+    add_user('michaelherman1', 'michael@mherman.org')
     db.session.commit()
 
 

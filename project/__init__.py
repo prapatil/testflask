@@ -1,10 +1,10 @@
 #project/__init__.py
 import os
 from flask import Flask, jsonify
-import datetime
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+
 
 def create_app():
  app = Flask(__name__)
